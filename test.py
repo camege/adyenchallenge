@@ -74,8 +74,8 @@ def initiate_payment():
             'countryCode':'NL',
             'billingAddress': payment_info['billingAddress'],
             'browserInfo': payment_info['browserInfo'],
-            'returnUrl': "http://127.0.0.1:5000/api/handleRedirect",
-            'origin': 'http://127.0.0.1:5000/',
+            'returnUrl': "https://fathomless-castle-02164.herokuapp.com/api/handleRedirect",
+            'origin': 'https://fathomless-castle-02164.herokuapp.com/',
             'merchantAccount': MERCHANT_ACCOUNT,
             'additionalData': {"allow3DS2": "true"}
         }
@@ -89,7 +89,7 @@ def initiate_payment():
             'reference': order_ref,
             'channel': 'web',
             'countryCode': "CN",
-            'returnUrl': "http://127.0.0.1:5000/api/handleRedirect",
+            'returnUrl': "https://fathomless-castle-02164.herokuapp.com/handleRedirect",
             'merchantAccount': MERCHANT_ACCOUNT
         }
     elif(payment_info["paymentMethod"]['type'] == "poli"):
@@ -102,7 +102,7 @@ def initiate_payment():
             'reference': order_ref,
             'channel': 'web',
             'countryCode': "AU",
-            'returnUrl': "http://127.0.0.1:5000/api/handleRedirect",
+            'returnUrl': "https://fathomless-castle-02164.herokuapp.com/api/handleRedirect",
             'merchantAccount': MERCHANT_ACCOUNT
         }
     else:
@@ -115,7 +115,7 @@ def initiate_payment():
             'reference': order_ref,
             'channel': 'web',
             'countryCode': "NL",
-            'returnUrl': "http://127.0.0.1:5000/api/handleRedirect",
+            'returnUrl': "https://fathomless-castle-02164.herokuapp.com/api/handleRedirect",
             'merchantAccount': MERCHANT_ACCOUNT
         }
 
