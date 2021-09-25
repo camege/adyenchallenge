@@ -97,6 +97,7 @@
               <option value="SG">Singapore</option>
               <option value="DE">Germany</option>
               <option value="CN">China</option>
+              <option value="AU">Australia</option>
             </select>
 
             <script type="text/javascript">
@@ -115,6 +116,9 @@
                     }
                      else if (location.options[location.selectedIndex].value == "CN") {
                         url = 'http://127.0.0.1:5000/checkout?country=' + "CN" ;
+                    }
+                     else if (location.options[location.selectedIndex].value == "AU") {
+                        url = 'http://127.0.0.1:5000/checkout?country=' + "AU" ;
                     }
 
                     window.location.href=url;

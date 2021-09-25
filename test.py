@@ -6,8 +6,12 @@ from config import CLIENT_KEY, MERCHANT_ACCOUNT
 from webfunctions import GET_PAYMENT_METHODS, GET_PAYMENT_DETAILS, MAKE_PAYMENT, make_adyen_request
 
 def chosen_country(country):
-    if country == "SG" or country == "CN":
+    if country == "SG":
+        return {'value':2698, "currency":'SGD'}
+    elif country == "CN":
         return {'value':2698, "currency":'CNY'}
+    elif country == "AU":
+        return {'value':2698, "currency":'AUD'}
     else:
         return {'value':2698, "currency":'EUR'}
 
@@ -84,7 +88,20 @@ def initiate_payment():
             'paymentMethod': (payment_info["paymentMethod"]),
             'reference': order_ref,
             'channel': 'web',
-            'countryCode': "NL",
+            'countryCode': "CN",
+            'returnUrl': "http://127.0.0.1:5000/api/handleRedirect",
+            'merchantAccount': MERCHANT_ACCOUNT
+        }
+    elif(payment_info["paymentMethod"]['type'] == "poli"):
+        payments_request = {
+            'amount': {
+                'value': 2700,
+                'currency': 'AUD'
+            },
+            'paymentMethod': (payment_info["paymentMethod"]),
+            'reference': order_ref,
+            'channel': 'web',
+            'countryCode': "AU",
             'returnUrl': "http://127.0.0.1:5000/api/handleRedirect",
             'merchantAccount': MERCHANT_ACCOUNT
         }
