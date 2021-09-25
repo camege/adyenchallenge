@@ -89,7 +89,7 @@ def initiate_payment():
             'reference': order_ref,
             'channel': 'web',
             'countryCode': "CN",
-            'returnUrl': "https://fathomless-castle-02164.herokuapp.com/handleRedirect",
+            'returnUrl': "https://fathomless-castle-02164.herokuapp.com/api/handleRedirect",
             'merchantAccount': MERCHANT_ACCOUNT
         }
     elif(payment_info["paymentMethod"]['type'] == "poli"):
