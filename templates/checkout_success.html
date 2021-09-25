@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<title>Confirmation</title>
+
+<div class="status-container">
+    <div class="status">
+        <p class="status-message">Your order has been successfully placed. Details: {{ responseJson }}</p>
+        <a class="button" href="/">Return Home</a>
+    </div>
+</div>
+{% endblock %}
