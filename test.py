@@ -51,7 +51,7 @@ def checkout():
 def get_payment_methods():
     payment_info = request.get_json()
     order_ref = str(uuid.uuid4())
-    print(payment_info, "ege")
+    print(payment_info)
     payload = {
         'merchantAccount': MERCHANT_ACCOUNT,
         'countryCode': payment_info['country_code'],
@@ -71,7 +71,7 @@ def initiate_payment():
             'currency': payment_info['currency']
         },
         'paymentMethod': (payment_info["paymentMethod"]),
-        'reference': "egecamlibel_challenge",
+        'reference': "egecamlibel_checkoutChallenge",
         'channel': 'web',
         'countryCode': payment_info['country_code'],
         'returnUrl': "http://127.0.0.1:5000/api/handleRedirect",
