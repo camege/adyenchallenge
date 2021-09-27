@@ -1,16 +1,22 @@
 const clientKey = JSON.parse(document.getElementById('client-key').innerHTML);
-const chosenCountry = JSON.parse(document.getElementById('country_code').innerHTML);
+const country_code = JSON.parse(document.getElementById('country_code').innerHTML);
+const value = JSON.parse(document.getElementById('value').innerHTML);
+const currency = JSON.parse(document.getElementById('currency').innerHTML);
 
 async function initCheckout() {
-    const paymentMethodsResponse = await callServer('/api/getPaymentMethods', {chosenCountry});
+    const paymentMethodsResponse = await callServer('/api/getPaymentMethods', {country_code, value, currency});
     const configuration = {
      paymentMethodsResponse: paymentMethodsResponse, // The `/paymentMethods` response from the server.
      clientKey, // Web Drop-in versions before 3.10.1 use originKey instead of clientKey.
      locale: "en-US",
      environment: "test",
+     amount: {value:value,currency:currency},
      onSubmit: (state, dropin) => {
          // Global configuration for onSubmit
          // Your function calling your server to make the `/payments` request
+        state.data['value'] = value;
+        state.data['currency'] = currency;
+        state.data['country_code'] = country_code;
         postData('/api/initiatePayment', state.data, dropin);
 
      },

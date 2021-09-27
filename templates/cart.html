@@ -100,32 +100,34 @@
               <option value="AU">Australia</option>
             </select>
 
+
+            <a id="checkout_button"><button class="btn-block btn-blue" onclick="javascript:goToProperPage();"> <span> <span id="checkout">Checkout</span> <span id="check-amt">$26.48</span> </span> </button></a>
             <script type="text/javascript">
 
                 function goToProperPage() {
                     var url;
                     var location = document.getElementById("country-names");
+                    var value = document.getElementById("check-amt").innerText.substring(1);
                     if (location.options[location.selectedIndex].value == "NL") {
-                        url = 'https://fathomless-castle-02164.herokuapp.com/checkout?country=' + "NL" ;
+                        url = 'http://127.0.0.1:5000/checkout?country=' + "NL" +"&value=" + value;
                     }
                     else if (location.options[location.selectedIndex].value == "SG") {
-                        url = 'https://fathomless-castle-02164.herokuapp.com/checkout?country=' + "SG" ;
+                        url = 'http://127.0.0.1:5000/checkout?country=' + "SG" +"&value=" + value ;
                     }
                     else if (location.options[location.selectedIndex].value == "DE") {
-                        url = 'https://fathomless-castle-02164.herokuapp.com/checkout?country=' + "DE" ;
+                        url = 'http://127.0.0.1:5000/checkout?country=' + "DE" +"&value=" + value;
                     }
                      else if (location.options[location.selectedIndex].value == "CN") {
-                        url = 'https://fathomless-castle-02164.herokuapp.com/checkout?country=' + "CN" ;
+                        url = 'http://127.0.0.1:5000/checkout?country=' + "CN" +"&value=" + value;
                     }
                      else if (location.options[location.selectedIndex].value == "AU") {
-                        url = 'https://fathomless-castle-02164.herokuapp.com/checkout?country=' + "AU" ;
+                        url = 'http://127.0.0.1:5000/checkout?country=' + "AU" +"&value=" + value;
                     }
 
                     window.location.href=url;
                 }
 
             </script>
-            <a id="checkout_button"><button class="btn-block btn-blue" onclick="javascript:goToProperPage();"> <span> <span id="checkout">Checkout</span> <span id="check-amt">$26.48</span> </span> </button></a>
           </div>
         </div>
       </div>

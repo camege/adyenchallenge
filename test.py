@@ -3,17 +3,21 @@ import json
 import uuid
 
 from config import CLIENT_KEY, MERCHANT_ACCOUNT
-from webfunctions import GET_PAYMENT_METHODS, GET_PAYMENT_DETAILS, MAKE_PAYMENT, make_adyen_request
+from webfunctions import get_payment_methods_available, get_payment_details, make_payment
+
 
 def chosen_country(country):
     if country == "SG":
-        return {'value':2698, "currency":'SGD'}
+        return {"currency": 'SGD', "country_code": "SG"}
     elif country == "CN":
-        return {'value':2698, "currency":'CNY'}
+        return {"currency": 'CNY', "country_code": "CN"}
     elif country == "AU":
-        return {'value':2698, "currency":'AUD'}
+        return {"currency": 'AUD', "country_code": "AU"}
+    elif country == "DE":
+        return {"currency": 'EUR', "country_code": "DE"}
     else:
-        return {'value':2698, "currency":'EUR'}
+        return {"currency": 'EUR', "country_code": "NL"}
+
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
@@ -38,22 +42,23 @@ def checkout_failed():
 @app.route('/checkout', methods=['GET'])
 def checkout():
     country_code = request.args['country']
-    print(country_code)
-    return render_template('adyen_component.html', client_key=CLIENT_KEY, country_code=country_code)
+    amount = request.args['value'].replace(".", "")
+    return render_template('adyen_component.html', client_key=CLIENT_KEY,
+                           currency=chosen_country(country_code)['currency'], value=amount, country_code=country_code)
 
 
 @app.route('/api/getPaymentMethods', methods=['GET', 'POST'])
 def get_payment_methods():
     payment_info = request.get_json()
     order_ref = str(uuid.uuid4())
-    print(payment_info)
+    print(payment_info, "ege")
     payload = {
         'merchantAccount': MERCHANT_ACCOUNT,
-        'countryCode': payment_info['chosenCountry'],
-        'amount': chosen_country(payment_info['chosenCountry']),
+        'countryCode': payment_info['country_code'],
+        'amount': {"value": payment_info['value'], "currency": payment_info['currency']},
         'channel': 'Web'
     }
-    return make_adyen_request(GET_PAYMENT_METHODS, payload)
+    return get_payment_methods_available(payload)
 
 
 @app.route('/api/initiatePayment', methods=['GET', 'POST'])
@@ -61,71 +66,32 @@ def initiate_payment():
     payment_info = request.get_json()
     order_ref = str(uuid.uuid4())
     print(payment_info)
+    payments_request = {
+        'amount': {
+            'value': payment_info['value'],
+            'currency': payment_info['currency']
+        },
+        'paymentMethod': (payment_info["paymentMethod"]),
+        'reference': order_ref,
+        'channel': 'web',
+        'countryCode': payment_info['country_code'],
+        'returnUrl': "http://127.0.0.1:5000/api/handleRedirect",
+        'merchantAccount': MERCHANT_ACCOUNT
+    }
+    if payment_info["paymentMethod"]['type'] == "scheme":
+        payments_request['origin'] = 'http://127.0.0.1:5000/'
+        payments_request['additionalData'] = {"allow3DS2": "true"}
+        payments_request['billingAddress'] = payment_info['billingAddress'],
+        payments_request['browserInfo'] = payment_info['browserInfo']
 
-    if (payment_info["paymentMethod"]['type'] == "scheme"):
-        payments_request = {
-            'amount': {
-                'value': 2698,
-                'currency': 'EUR'
-            },
-            'paymentMethod': (payment_info["paymentMethod"]),
-            'reference': order_ref,
-            'channel': 'web',
-            'countryCode':'NL',
-            'billingAddress': payment_info['billingAddress'],
-            'browserInfo': payment_info['browserInfo'],
-            'returnUrl': "https://fathomless-castle-02164.herokuapp.com/api/handleRedirect",
-            'origin': 'https://fathomless-castle-02164.herokuapp.com/',
-            'merchantAccount': MERCHANT_ACCOUNT,
-            'additionalData': {"allow3DS2": "true"}
-        }
-    elif(payment_info["paymentMethod"]['type'] == "alipay"):
-        payments_request = {
-            'amount': {
-                'value': 2700,
-                'currency': 'CNY'
-            },
-            'paymentMethod': (payment_info["paymentMethod"]),
-            'reference': order_ref,
-            'channel': 'web',
-            'countryCode': "CN",
-            'returnUrl': "https://fathomless-castle-02164.herokuapp.com/api/handleRedirect",
-            'merchantAccount': MERCHANT_ACCOUNT
-        }
-    elif(payment_info["paymentMethod"]['type'] == "poli"):
-        payments_request = {
-            'amount': {
-                'value': 2700,
-                'currency': 'AUD'
-            },
-            'paymentMethod': (payment_info["paymentMethod"]),
-            'reference': order_ref,
-            'channel': 'web',
-            'countryCode': "AU",
-            'returnUrl': "https://fathomless-castle-02164.herokuapp.com/api/handleRedirect",
-            'merchantAccount': MERCHANT_ACCOUNT
-        }
-    else:
-        payments_request = {
-            'amount': {
-                'value': 2698,
-                'currency': 'EUR'
-            },
-            'paymentMethod': (payment_info["paymentMethod"]),
-            'reference': order_ref,
-            'channel': 'web',
-            'countryCode': "NL",
-            'returnUrl': "https://fathomless-castle-02164.herokuapp.com/api/handleRedirect",
-            'merchantAccount': MERCHANT_ACCOUNT
-        }
-
-    return make_adyen_request(MAKE_PAYMENT, payments_request)
+    return make_payment(payments_request)
 
 
 @app.route('/api/makeDetailsCall', methods=['GET', 'POST'])
 def payment_details():
     values = request.get_json()
-    return make_adyen_request(GET_PAYMENT_DETAILS, values)
+    print(values)
+    return get_payment_details(values)
 
 
 @app.route('/api/handleRedirect', methods=['GET'])
@@ -136,11 +102,13 @@ def handle_redirect():
             "redirectResult": id
         }
     }
-    payments_response = make_adyen_request(GET_PAYMENT_DETAILS, body)
+    payments_response = get_payment_details(body)
     print(json.loads(payments_response)['resultCode'])
-    if json.loads(payments_response)['resultCode'] == "Authorised" or json.loads(payments_response)['resultCode'] == "Pending" or json.loads(payments_response)['resultCode'] == "Received":
+    if json.loads(payments_response)['resultCode'] == "Authorised" or json.loads(payments_response)[
+        'resultCode'] == "Pending" or json.loads(payments_response)['resultCode'] == "Received":
         return render_template("checkout_success.html", responseJson=payments_response)
-    elif json.loads(payments_response)['resultCode'] == "Refused" or json.loads(payments_response)['resultCode'] == "Cancelled" or json.loads(payments_response)['resultCode'] == "Error":
+    elif json.loads(payments_response)['resultCode'] == "Refused" or json.loads(payments_response)[
+        'resultCode'] == "Cancelled" or json.loads(payments_response)['resultCode'] == "Error":
         return render_template("checkout_failed.html", responseJson=payments_response)
 
 
