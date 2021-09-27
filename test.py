@@ -64,7 +64,6 @@ def get_payment_methods():
 @app.route('/api/initiatePayment', methods=['GET', 'POST'])
 def initiate_payment():
     payment_info = request.get_json()
-    order_ref = str(uuid.uuid4())
     print(payment_info)
     payments_request = {
         'amount': {
@@ -72,7 +71,7 @@ def initiate_payment():
             'currency': payment_info['currency']
         },
         'paymentMethod': (payment_info["paymentMethod"]),
-        'reference': order_ref,
+        'reference': "egecamlibel_challenge",
         'channel': 'web',
         'countryCode': payment_info['country_code'],
         'returnUrl': "http://127.0.0.1:5000/api/handleRedirect",
